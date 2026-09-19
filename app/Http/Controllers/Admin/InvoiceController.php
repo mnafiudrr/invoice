@@ -3,11 +3,16 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\MarkPaidRequest;
+use App\Http\Requests\StoreFileRequest;
 use App\Http\Requests\StoreInvoiceRequest;
 use App\Http\Requests\UpdateInvoiceRequest;
+use App\Models\File;
 use App\Models\Invoice;
 use App\Models\Project;
+use App\Services\FileService;
 use App\Services\InvoiceService;
+use App\Services\PaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -15,7 +20,11 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class InvoiceController extends Controller
 {
-    public function __construct(private InvoiceService $invoiceService) {}
+    public function __construct(
+        private InvoiceService $invoiceService,
+        private PaymentService $paymentService,
+        private FileService $fileService,
+    ) {}
 
     public function index(Request $request): View
     {
@@ -106,5 +115,32 @@ class InvoiceController extends Controller
     public function downloadPdf(Invoice $invoice): StreamedResponse
     {
         return $this->invoiceService->streamPdf($invoice);
+    }
+
+    public function markPaid(MarkPaidRequest $request, Invoice $invoice): RedirectResponse
+    {
+        $this->paymentService->markAsPaid($invoice, $request->validated());
+
+        return redirect()
+            ->route('admin.invoices.show', $invoice)
+            ->with('success', 'Invoice marked as paid.');
+    }
+
+    public function storeFile(StoreFileRequest $request, Invoice $invoice): RedirectResponse
+    {
+        $this->fileService->storeForInvoice($invoice, $request->file('file'), $request->string('type'));
+
+        return redirect()
+            ->route('admin.invoices.show', $invoice)
+            ->with('success', 'Document uploaded.');
+    }
+
+    public function deleteFile(Invoice $invoice, File $file): RedirectResponse
+    {
+        $this->fileService->delete($file);
+
+        return redirect()
+            ->route('admin.invoices.show', $invoice)
+            ->with('success', 'Document deleted.');
     }
 }
