@@ -8,7 +8,7 @@ Planning and conventions for the Invoice Management Web App (`invoice.fiu.my.id`
 | --- | --- |
 | Scope / MVP | `plans/scopes/mvp.md` (source of truth), `prd.md`, `data-model.md`, `security.md`, `url-structure.md`, `workflows.md`, `deployment.md` |
 | Features | `plans/features/001-authentication.md` … `009-admin-dashboard.md` |
-| Tasks | `plans/tasks/001-foundation.md` … `007-polish.md` |
+| Tasks | `plans/tasks/001-foundation.md` … `008-single-invoice-sharing.md` |
 
 ## Diagrams (PlantUML)
 

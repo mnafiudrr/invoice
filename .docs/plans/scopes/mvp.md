@@ -544,9 +544,7 @@ The application must verify that the client is authorized to access the correspo
 
 For MVP, the project password can be sufficient for invoice access.
 
-If individual invoice passwords are needed later, introduce a dedicated `share_links` table rather than complicating the invoice model.
-
-Possible future structure:
+Individual invoice sharing is implemented via a dedicated `share_links` table:
 
 ```text
 share_links
@@ -561,7 +559,7 @@ created_at
 updated_at
 ```
 
-This would support:
+This supports:
 
 ```text
 Project share
@@ -570,8 +568,6 @@ Project share
 Individual invoice share
 /s/{random-token}
 ```
-
-However, this is optional and should not be implemented unless the workflow actually requires it.
 
 ---
 
@@ -1195,7 +1191,8 @@ Keep the implementation boring, maintainable, and easy to deploy.
 Only implement these if they become necessary:
 
 * S3/MinIO private object storage
-* Individual invoice share links
+* Individual invoice share links — implemented for MVP (see `share_links`)
+* Share-link expiration — column exists (`expires_at`); UI to set it is future work
 * Share-link expiration
 * Multiple owners/admins
 * Email delivery

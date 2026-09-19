@@ -119,9 +119,9 @@ Relations: `belongsTo projects`, `belongsTo invoices`.
 
 ---
 
-## share_links (OPTIONAL / future)
+## share_links
 
-Do **not** implement for MVP unless individual invoice sharing is truly required.
+Supports individual invoice sharing: `/s/{token}`.
 
 | Column | Type | Notes |
 | --- | --- | --- |
@@ -132,6 +132,8 @@ Do **not** implement for MVP unless individual invoice sharing is truly required
 | password_hash | varchar | |
 | expires_at | timestamp nullable | |
 | timestamps | | |
+
+Relations: `belongsTo projects`, `belongsTo invoices`. MVP implements invoice-level shares (`invoice_id` set). Project-level shares (`invoice_id` null) are not used yet.
 
 ---
 
@@ -152,3 +154,5 @@ Do **not** implement for MVP unless individual invoice sharing is truly required
 - `invoice_items.invoice_id`
 - `payments.invoice_id`
 - `files.project_id`, `files.invoice_id`
+- `share_links.token` — unique
+- `share_links.project_id`, `share_links.invoice_id`

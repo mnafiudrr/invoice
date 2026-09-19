@@ -14,6 +14,11 @@
 | POST | `/p/{project:slug}/password` | Submit project password | public → sets session |
 | GET | `/p/{project:slug}/f/{invoice:invoice_number}` | Stream invoice PDF inline | project password session |
 | GET | `/p/{project:slug}/f/{invoice:invoice_number}/file/{file}` | Stream other attached file | project password session |
+| GET | `/s/{shareLink:token}` | Shared invoice (password form or invoice) | share password |
+| GET | `/s/{shareLink:token}/password` | Share password form | public |
+| POST | `/s/{shareLink:token}/password` | Submit share password | public → sets session |
+| GET | `/s/{shareLink:token}/pdf` | Stream shared invoice PDF | share password session |
+| GET | `/s/{shareLink:token}/file/{file}` | Stream shared attached file | share password session |
 
 ## Admin (owner only)
 
@@ -39,6 +44,8 @@
 | GET | `/admin/invoices/{invoice}/pdf` | Stream generated PDF (owner) |
 | POST | `/admin/invoices/{invoice}/paid` | Mark paid + record payment |
 | POST | `/admin/invoices/{invoice}/files` | Upload file (receipt/proof/other) |
+| POST | `/admin/invoices/{invoice}/share` | Create invoice share link |
+| DELETE | `/admin/invoices/{invoice}/share/{shareLink}` | Revoke invoice share link |
 | POST | `/admin/projects/{project}/password` | Regenerate project password |
 
 > Note: invoice-number in the client path uses route-model binding on `invoice_number`; the admin uses `id` binding via explicit binding rules.
