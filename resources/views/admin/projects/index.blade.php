@@ -48,7 +48,5 @@
         </table>
     </div>
 
-    <div class="mt-4">
-        {{ $projects->links() }}
-    </div>
+    <x-pagination :paginator="$projects" />
 @endsection

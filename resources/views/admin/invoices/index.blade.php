@@ -70,7 +70,5 @@
         </table>
     </div>
 
-    <div class="mt-4">
-        {{ $invoices->links() }}
-    </div>
+    <x-pagination :paginator="$invoices" />
 @endsection

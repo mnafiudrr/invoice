@@ -6,7 +6,11 @@
     <h1 class="text-2xl font-semibold text-gray-900">Edit Invoice</h1>
 
     <form method="POST" action="{{ route('admin.invoices.update', $invoice) }}" class="mt-6 max-w-3xl space-y-6"
-          x-data="invoiceForm()">
+          x-data="invoiceForm(@js($invoice->items->map(fn ($item) => [
+              'description' => $item->description,
+              'quantity' => (float) $item->quantity,
+              'unit_price' => (float) $item->unit_price,
+          ])->values()))">
         @csrf
         @method('PUT')
 
@@ -112,25 +116,4 @@
             <a href="{{ route('admin.invoices.show', $invoice) }}" class="text-sm text-gray-600 hover:text-gray-900">Cancel</a>
         </div>
     </form>
-
-    <script>
-        function invoiceForm() {
-            return {
-                items: @json($invoice->items->map(fn ($item) => [
-                    'description' => $item->description,
-                    'quantity' => (float) $item->quantity,
-                    'unit_price' => (float) $item->unit_price,
-                ])->values()),
-                addItem() {
-                    this.items.push({ description: '', quantity: 1, unit_price: 0 });
-                },
-                removeItem(index) {
-                    this.items.splice(index, 1);
-                },
-                formatMoney(value) {
-                    return new Intl.NumberFormat('id-ID').format(value || 0);
-                },
-            };
-        }
-    </script>
 @endsection

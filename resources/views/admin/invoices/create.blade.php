@@ -112,21 +112,4 @@
             <a href="{{ route('admin.invoices.index') }}" class="text-sm text-gray-600 hover:text-gray-900">Cancel</a>
         </div>
     </form>
-
-    <script>
-        function invoiceForm() {
-            return {
-                items: [{ quantity: 1, unit_price: 0 }],
-                addItem() {
-                    this.items.push({ quantity: 1, unit_price: 0 });
-                },
-                removeItem(index) {
-                    this.items.splice(index, 1);
-                },
-                formatMoney(value) {
-                    return new Intl.NumberFormat('id-ID').format(value || 0);
-                },
-            };
-        }
-    </script>
 @endsection
