@@ -64,7 +64,7 @@
             <div class="rounded-lg bg-white p-6 shadow">
                 <div class="flex items-center justify-between">
                     <h2 class="text-lg font-semibold">Invoices</h2>
-                    <a href="#" class="text-sm text-indigo-600 hover:underline">New Invoice</a>
+                    <a href="{{ route('admin.invoices.create', ['project_id' => $project->id]) }}" class="text-sm text-indigo-600 hover:underline">New Invoice</a>
                 </div>
 
                 @forelse ($project->invoices as $invoice)

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Client\ProjectController as ClientProjectController;
@@ -27,4 +28,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::resource('projects', ProjectController::class);
     Route::post('projects/{project}/regenerate-password', [ProjectController::class, 'regeneratePassword'])
         ->name('projects.regenerate-password');
+
+    Route::resource('invoices', InvoiceController::class);
+    Route::get('invoices/{invoice}/preview', [InvoiceController::class, 'preview'])
+        ->name('invoices.preview');
 });

@@ -19,11 +19,20 @@ class Invoice extends Model
 
     public const STATUS_CANCELLED = 'cancelled';
 
+    public const LANGUAGE_ID = 'id';
+
+    public const LANGUAGE_EN = 'en';
+
     public static array $statuses = [
         self::STATUS_DRAFT,
         self::STATUS_SENT,
         self::STATUS_PAID,
         self::STATUS_CANCELLED,
+    ];
+
+    public static array $languages = [
+        self::LANGUAGE_ID,
+        self::LANGUAGE_EN,
     ];
 
     protected $fillable = [
@@ -56,5 +65,20 @@ class Invoice extends Model
     public function items(): HasMany
     {
         return $this->hasMany(InvoiceItem::class);
+    }
+
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    public function files(): HasMany
+    {
+        return $this->hasMany(File::class);
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->status === self::STATUS_PAID;
     }
 }
