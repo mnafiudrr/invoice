@@ -1,0 +1,12 @@
+.git
+.gitignore
+.docs
+.env
+vendor
+node_modules
+storage/app/private
+*.md
+Dockerfile
+compose.yaml
+.gitattributes
+.github

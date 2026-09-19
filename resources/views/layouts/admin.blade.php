@@ -17,8 +17,12 @@
                             {{ config('app.name') }}
                         </a>
                         <nav class="flex items-center gap-4">
+                            <a href="{{ route('admin.dashboard') }}"
+                               class="text-sm font-medium text-gray-600 hover:text-gray-900">Dashboard</a>
                             <a href="{{ route('admin.projects.index') }}"
                                class="text-sm font-medium text-gray-600 hover:text-gray-900">Projects</a>
+                            <a href="{{ route('admin.invoices.index') }}"
+                               class="text-sm font-medium text-gray-600 hover:text-gray-900">Invoices</a>
                         </nav>
                     </div>
                     <div class="flex items-center gap-4">

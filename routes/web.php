@@ -47,6 +47,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         ->name('invoices.generate-pdf');
     Route::get('invoices/{invoice}/pdf', [InvoiceController::class, 'downloadPdf'])
         ->name('invoices.download-pdf');
+    Route::post('invoices/{invoice}/status', [InvoiceController::class, 'changeStatus'])
+        ->name('invoices.status');
     Route::post('invoices/{invoice}/paid', [InvoiceController::class, 'markPaid'])
         ->name('invoices.mark-paid');
     Route::post('invoices/{invoice}/files', [InvoiceController::class, 'storeFile'])

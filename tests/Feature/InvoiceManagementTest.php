@@ -142,4 +142,19 @@ class InvoiceManagementTest extends TestCase
             ->assertOk()
             ->assertSee($invoice->invoice_number);
     }
+
+    public function test_owner_can_change_invoice_status(): void
+    {
+        $this->actingAs($this->owner);
+
+        $invoice = Invoice::factory()->for($this->project)->create(['status' => Invoice::STATUS_DRAFT]);
+
+        $this->post(route('admin.invoices.status', $invoice), ['status' => Invoice::STATUS_SENT])
+            ->assertRedirect(route('admin.invoices.show', $invoice));
+
+        $this->assertDatabaseHas('invoices', [
+            'id' => $invoice->id,
+            'status' => Invoice::STATUS_SENT,
+        ]);
+    }
 }

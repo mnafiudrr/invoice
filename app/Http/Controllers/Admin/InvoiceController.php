@@ -15,6 +15,7 @@ use App\Services\InvoiceService;
 use App\Services\PaymentService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -115,6 +116,19 @@ class InvoiceController extends Controller
     public function downloadPdf(Invoice $invoice): StreamedResponse
     {
         return $this->invoiceService->streamPdf($invoice);
+    }
+
+    public function changeStatus(Request $request, Invoice $invoice): RedirectResponse
+    {
+        $request->validate([
+            'status' => ['required', Rule::in(Invoice::$statuses)],
+        ]);
+
+        $this->invoiceService->changeStatus($invoice, $request->string('status'));
+
+        return redirect()
+            ->route('admin.invoices.show', $invoice)
+            ->with('success', 'Invoice status updated.');
     }
 
     public function markPaid(MarkPaidRequest $request, Invoice $invoice): RedirectResponse

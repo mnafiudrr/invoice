@@ -216,6 +216,23 @@
                     </div>
                 </dl>
             </div>
+
+            @if (! $invoice->isPaid())
+                <div class="rounded-lg bg-white p-6 shadow">
+                    <h2 class="text-sm font-semibold text-gray-900">Status</h2>
+                    <form method="POST" action="{{ route('admin.invoices.status', $invoice) }}" class="mt-3 flex items-center gap-2">
+                        @csrf
+                        <select name="status" class="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            @foreach ($invoice::$statuses as $status)
+                                <option value="{{ $status }}" @selected($invoice->status === $status)>{{ ucfirst($status) }}</option>
+                            @endforeach
+                        </select>
+                        <button type="submit" class="rounded-md bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                            Update
+                        </button>
+                    </form>
+                </div>
+            @endif
         </div>
     </div>
 @endsection
