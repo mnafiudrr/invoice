@@ -11,6 +11,7 @@ use App\Services\InvoiceService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class InvoiceController extends Controller
 {
@@ -91,5 +92,19 @@ class InvoiceController extends Controller
         return view('pdf.invoice', [
             'invoice' => $invoice->load('project', 'items'),
         ]);
+    }
+
+    public function generatePdf(Invoice $invoice): RedirectResponse
+    {
+        $this->invoiceService->generatePdf($invoice);
+
+        return redirect()
+            ->route('admin.invoices.show', $invoice)
+            ->with('success', 'Invoice PDF generated.');
+    }
+
+    public function downloadPdf(Invoice $invoice): StreamedResponse
+    {
+        return $this->invoiceService->streamPdf($invoice);
     }
 }

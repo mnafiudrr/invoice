@@ -32,4 +32,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::resource('invoices', InvoiceController::class);
     Route::get('invoices/{invoice}/preview', [InvoiceController::class, 'preview'])
         ->name('invoices.preview');
+    Route::post('invoices/{invoice}/pdf', [InvoiceController::class, 'generatePdf'])
+        ->name('invoices.generate-pdf');
+    Route::get('invoices/{invoice}/pdf', [InvoiceController::class, 'downloadPdf'])
+        ->name('invoices.download-pdf');
 });

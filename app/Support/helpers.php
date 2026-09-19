@@ -11,7 +11,7 @@ if (! function_exists('format_money')) {
         $amount = (float) $amount;
 
         if (strtoupper($currency) === 'IDR') {
-            return 'Rp '.Number::format($amount, maxPrecision: 0);
+            return 'Rp '.number_format($amount, 0, ',', '.');
         }
 
         return Number::currency($amount, in: strtoupper($currency));

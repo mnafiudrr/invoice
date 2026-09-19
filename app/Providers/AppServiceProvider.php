@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Contracts\PdfGenerator;
+use App\Services\DompdfPdfGenerator;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\ServiceProvider;
@@ -13,7 +15,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(PdfGenerator::class, DompdfPdfGenerator::class);
     }
 
     /**
@@ -23,6 +25,10 @@ class AppServiceProvider extends ServiceProvider
     {
         RateLimiter::for('login', function ($job) {
             return Limit::perMinute(5)->by($job->ip());
+        });
+
+        RateLimiter::for('project-password', function ($job) {
+            return Limit::perMinute(10)->by($job->ip());
         });
     }
 }

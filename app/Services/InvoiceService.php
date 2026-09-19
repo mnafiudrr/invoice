@@ -2,11 +2,18 @@
 
 namespace App\Services;
 
+use App\Contracts\PdfGenerator;
+use App\Models\File;
 use App\Models\Invoice;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class InvoiceService
 {
+    public function __construct(private PdfGenerator $pdfGenerator) {}
+
     public function create(array $data): Invoice
     {
         $items = $this->normalizeItems($data['items'] ?? []);
@@ -80,6 +87,42 @@ class InvoiceService
     public function delete(Invoice $invoice): void
     {
         $invoice->delete();
+    }
+
+    public function generatePdf(Invoice $invoice): File
+    {
+        return DB::transaction(function () use ($invoice) {
+            $filename = Str::uuid()->toString().'.pdf';
+            $path = 'invoices/'.now()->year.'/'.$filename;
+
+            Storage::disk('private')->put($path, $this->pdfGenerator->generate($invoice));
+
+            return File::updateOrCreate(
+                ['invoice_id' => $invoice->id, 'type' => File::TYPE_INVOICE],
+                [
+                    'project_id' => $invoice->project_id,
+                    'path' => $path,
+                    'original_filename' => $invoice->invoice_number.'.pdf',
+                    'mime_type' => 'application/pdf',
+                    'size' => Storage::disk('private')->size($path),
+                ]
+            );
+        });
+    }
+
+    public function streamPdf(Invoice $invoice): StreamedResponse
+    {
+        $file = $invoice->files()
+            ->where('type', File::TYPE_INVOICE)
+            ->latest()
+            ->first();
+
+        abort_if($file === null, 404, 'No PDF generated for this invoice yet.');
+
+        return Storage::disk('private')->response($file->path, $file->original_filename, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'inline; filename="'.$file->original_filename.'"',
+        ]);
     }
 
     public function generateNumber(): string

@@ -15,6 +15,18 @@
                class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                 Preview
             </a>
+            <form method="POST" action="{{ route('admin.invoices.generate-pdf', $invoice) }}">
+                @csrf
+                <button type="submit" class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700">
+                    Generate PDF
+                </button>
+            </form>
+            @if ($invoice->files->where('type', 'invoice')->isNotEmpty())
+                <a href="{{ route('admin.invoices.download-pdf', $invoice) }}"
+                   class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                    View PDF
+                </a>
+            @endif
             <a href="{{ route('admin.invoices.edit', $invoice) }}"
                class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                 Edit
