@@ -1,0 +1,122 @@
+@startuml erd
+' ERD — Invoice Management App
+' Source of truth: .docs/plans/scopes/mvp.md
+
+hide circle
+skinparam linetype ortho
+skinparam classAttributeIconSize 0
+skinparam classFontSize 13
+skinparam classAttributeFontSize 11
+
+entity "users" as users {
+  * id : bigint <<PK>>
+  --
+  name : varchar
+  email : varchar <<unique>>
+  password : varchar
+  remember_token : varchar
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "projects" as projects {
+  * id : bigint <<PK>>
+  --
+  user_id : bigint <<FK>>
+  name : varchar
+  slug : varchar <<unique>>
+  client_name : varchar
+  client_email : varchar
+  client_company : varchar
+  description : text
+  access_password_hash : varchar
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "invoices" as invoices {
+  * id : bigint <<PK>>
+  --
+  project_id : bigint <<FK>>
+  invoice_number : varchar <<unique>>
+  language : varchar
+  currency : varchar
+  subtotal : decimal
+  tax : decimal
+  total : decimal
+  issued_at : date
+  due_at : date
+  status : varchar
+  notes : text
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "invoice_items" as invoice_items {
+  * id : bigint <<PK>>
+  --
+  invoice_id : bigint <<FK>>
+  description : varchar
+  quantity : decimal
+  unit_price : decimal
+  amount : decimal
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "payments" as payments {
+  * id : bigint <<PK>>
+  --
+  invoice_id : bigint <<FK>>
+  amount : decimal
+  paid_at : date
+  method : varchar
+  reference : varchar
+  notes : text
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "files" as files {
+  * id : bigint <<PK>>
+  --
+  project_id : bigint <<FK>>
+  invoice_id : bigint <<FK, nullable>>
+  type : varchar
+  path : varchar
+  original_filename : varchar
+  mime_type : varchar
+  size : bigint
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+' Optional / future — do NOT implement for MVP
+entity "share_links" as share_links {
+  * id : bigint <<PK>>
+  --
+  project_id : bigint <<FK>>
+  invoice_id : bigint <<FK, nullable>>
+  token : varchar <<unique>>
+  password_hash : varchar
+  expires_at : timestamp <<nullable>>
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+users ||--o{ projects : "owns"
+projects ||--o{ invoices : "has"
+invoices ||--o{ invoice_items : "contains"
+invoices ||--o{ payments : "receives"
+projects ||--o{ files : "owns"
+invoices ||--o{ files : "attaches to"
+projects ||--o{ share_links : "future"
+invoices ||--o{ share_links : "future"
+
+note top of share_links
+  OPTIONAL — only implement if the
+  individual-invoice share workflow
+  is actually required.
+end note
+
+@enduml

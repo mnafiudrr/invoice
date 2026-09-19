@@ -1,0 +1,41 @@
+@startuml flowchart
+' Main end-to-end workflow — Invoice Management App
+' Source of truth: .docs/plans/scopes/mvp.md
+
+start
+:Owner logs in\n(admin auth required);
+
+:Create Project\n(name, slug, client info,\nproject password);
+
+if (Share project link?) then (yes)
+  :Copy link + password;
+  :Send to client via WhatsApp/email;
+else (no)
+endif
+
+:Create Invoice\n(project, number, language,\ncurrency, dates, items, tax, notes);
+
+repeat
+  :Preview invoice (HTML template);
+  :Adjust content;
+repeat while (Satisfied?) is (no)
+->yes;
+
+:Generate invoice PDF\n(Dompdf from Blade template);
+
+:Store PDF privately\n(storage/app/private/invoices/);
+
+if (Client pays?) then (yes)
+  :Mark invoice as paid;
+  :Record payment\n(amount, date, method, reference);
+  :Upload receipt / proof\n(storage/app/private/);
+else (no)
+endif
+
+:Client opens shared link\n+ enters project password;
+
+:Client views invoice\n(PDF streamed via authorized endpoint);
+
+stop
+
+@enduml

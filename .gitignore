@@ -1,0 +1,15 @@
+/vendor/
+/node_modules/
+/.env
+/.env.backup
+/.phpunit.result.cache
+/storage/logs/*
+/storage/app/private/*
+!/storage/app/private/.gitignore
+/composer.lock
+/package-lock.json
+/public/build/
+/public/hot
+/public/storage
+.DS_Store
+*.pdf

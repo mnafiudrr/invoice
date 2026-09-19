@@ -1,0 +1,34 @@
+@startuml flowchart-client-access
+' Client access + private PDF streaming — Invoice Management App
+' Source of truth: .docs/plans/scopes/mvp.md
+
+start
+:Client opens\nGET /p/{project-slug};
+
+if (project_access.{project_id} in session?) then (yes)
+else (no)
+  :Show password form;
+  repeat
+    :Client enters password;
+    if (Hash::check(password, hash)?) then (yes)
+      :Store project_access.{project_id} = true\nin Laravel session;
+    else (no)
+      :Show error;\nRate-limit attempts;
+    endif
+  repeat while (Not authorized?) is (yes)
+  ->authorized;
+endif
+
+:Client opens\nGET /p/{project}/f/{invoice-identifier};
+
+if (Authorized for project?) then (yes)
+  :Find private PDF via files table;
+  :Stream PDF inline\n(Laravel filesystem, response);
+  :Browser displays PDF viewer;
+else (no)
+  :Redirect to password page;
+endif
+
+stop
+
+@enduml

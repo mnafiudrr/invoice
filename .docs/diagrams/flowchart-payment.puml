@@ -1,0 +1,26 @@
+@startuml flowchart-payment
+' Payment workflow — Invoice Management App
+' Source of truth: .docs/plans/scopes/mvp.md
+
+start
+:Invoice exists (status: draft / sent);
+
+if (Owner marks as paid?) then (yes)
+  :Create payment record\n(invoice_id, amount, paid_at,\nmethod, reference, notes);
+  :Change invoice status\ndraft|sent -> paid;
+  :Upload payment receipt\n(type = payment_receipt);
+  :Upload payment proof\n(type = payment_proof);
+else (no)
+  :Invoice stays unpaid;
+endif
+
+if (Payment uploaded?) then (yes)
+  :Attach file to invoice\n(private storage + files row);
+else (no)
+endif
+
+:Client sees status\n(PAID + paid-on date + documents);
+
+stop
+
+@enduml
