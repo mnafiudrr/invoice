@@ -14,6 +14,19 @@ Keep Blade views readable, structured, and consistent.
 - Use Tailwind utility classes. Use Alpine.js only for lightweight interactivity (copy-to-clipboard, dynamic item rows, mobile nav).
 - Translate labels via `__('invoice.subtotal')` for the PDF template.
 
+## Component system (see `ui-ux-refactor.md`)
+
+- Prefer the shared components in `resources/views/components/` over raw utility soup:
+  `x-button`, `x-card`, `x-input`, `x-select`, `x-textarea`, `x-field`, `x-alert`, `x-status-badge`, `x-empty-state`, `x-table`, `x-modal`, `x-breadcrumbs`, `x-page-header`, `x-copy-field`, `x-pagination`.
+- Buttons: always `x-button` (or a link styled as a button). Never hand-roll primary/secondary/danger buttons.
+- Forms: use `x-input` / `x-select` / `x-textarea` (they wire label + error). No bare `<input class="...">` in page templates.
+- Confirmations: destructive actions use `x-modal` confirm — **never** `onsubmit="return confirm(...)"`.
+- Tables: use `x-table` so mobile gets the responsive card fallback.
+- Empty states: use `x-empty-state`, not bare "No X yet." text.
+- Pagination: wrap with `x-pagination`.
+- Flash: pages render through the layout flash partial (`x-alert`); success auto-dismisses.
+- No `<script>` blocks in Blade. JavaScript lives in `resources/js/` (Alpine data components / modules) and is attached via `x-data` + named components.
+
 ## Example snippet
 
 ```blade
@@ -21,23 +34,22 @@ Keep Blade views readable, structured, and consistent.
 @extends('layouts.client')
 
 @section('content')
-  <h1 class="text-2xl font-semibold">{{ $project->name }}</h1>
-  <p class="text-gray-600">{{ $project->client_company }}</p>
+  <x-page-header title="{{ $project->name }}" subtitle="{{ $project->client_company }}" />
 
-  <ul class="mt-6 space-y-4">
+  <x-table :rows="$invoices" responsive>
     @foreach ($invoices as $invoice)
-      <li class="flex items-center justify-between rounded border p-4">
-        <div>
+      <x-table-row>
+        <x-slot:left>
           <p class="font-medium">{{ $invoice->invoice_number }}</p>
           <p class="text-sm text-gray-500">{{ $invoice->issued_at->format('d M Y') }}</p>
-        </div>
-        <div class="text-right">
+        </x-slot:left>
+        <x-slot:right>
           <p>{{ money($invoice->total, $invoice->currency) }}</p>
           <x-status-badge :status="$invoice->status" />
-        </div>
-      </li>
+        </x-slot:right>
+      </x-table-row>
     @endforeach
-  </ul>
+  </x-table>
 @endsection
 ```
 
@@ -46,9 +58,11 @@ Keep Blade views readable, structured, and consistent.
 - No business logic in templates (no `Hash::`, no file writes, no service calls).
 - Client views must render only whitelisted fields (see `007-client-access.md`).
 - Always escape output (default Blade behavior) — no `{!! !!}` unless absolutely required and sanitized.
+- No inline `<script>` in views; no `onsubmit="return confirm(...)"`.
 
 ## Anti-patterns
 
 - Duplicated invoice tables across admin + pdf + public.
 - Hardcoded URLs.
 - Business logic inside `@php` blocks.
+- Hand-rolled buttons/inputs/cards instead of the component system.

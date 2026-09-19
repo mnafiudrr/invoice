@@ -7,8 +7,9 @@ Planning and conventions for the Invoice Management Web App (`invoice.fiu.my.id`
 | Area | Files |
 | --- | --- |
 | Scope / MVP | `plans/scopes/mvp.md` (source of truth), `prd.md`, `data-model.md`, `security.md`, `url-structure.md`, `workflows.md`, `deployment.md` |
+| UI/UX refactor | `plans/scopes/ui-ux-refactor.md` (plan) |
 | Features | `plans/features/001-authentication.md` … `009-admin-dashboard.md` |
-| Tasks | `plans/tasks/001-foundation.md` … `008-single-invoice-sharing.md` |
+| Tasks | `plans/tasks/001-foundation.md` … `008-single-invoice-sharing.md`, `009-ui-ux-design-system.md`, `010-ui-ux-admin.md`, `011-ui-ux-client.md`, `012-ui-ux-polish.md` |
 
 ## Diagrams (PlantUML)
 
@@ -37,5 +38,7 @@ Planning and conventions for the Invoice Management Web App (`invoice.fiu.my.id`
 ## Reading order
 
 1. `plans/scopes/mvp.md` → 2. `plans/scopes/prd.md` → 3. `plans/features/*` → 4. `plans/tasks/*` → 5. `rules/*`.
+
+UI/UX overhaul: start at `plans/scopes/ui-ux-refactor.md`, then `plans/tasks/009` → `012`.
 
 Render `.puml` files with PlantUML (e.g. `plantuml diagrams/erd.puml` or a VS Code extension).
