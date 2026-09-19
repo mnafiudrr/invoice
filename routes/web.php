@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Client\ProjectController as ClientProjectController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route(
@@ -17,6 +19,12 @@ Route::middleware('guest')->group(function () {
 Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth')->name('logout');
 
+Route::get('/p/{project:slug}', [ClientProjectController::class, 'show'])->name('projects.show');
+
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+
+    Route::resource('projects', ProjectController::class);
+    Route::post('projects/{project}/regenerate-password', [ProjectController::class, 'regeneratePassword'])
+        ->name('projects.regenerate-password');
 });

@@ -12,9 +12,15 @@
         <nav class="bg-white shadow">
             <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
                 <div class="flex h-16 items-center justify-between">
-                    <a href="{{ route('admin.dashboard') }}" class="text-lg font-semibold">
-                        {{ config('app.name') }}
-                    </a>
+                    <div class="flex items-center gap-6">
+                        <a href="{{ route('admin.dashboard') }}" class="text-lg font-semibold">
+                            {{ config('app.name') }}
+                        </a>
+                        <nav class="flex items-center gap-4">
+                            <a href="{{ route('admin.projects.index') }}"
+                               class="text-sm font-medium text-gray-600 hover:text-gray-900">Projects</a>
+                        </nav>
+                    </div>
                     <div class="flex items-center gap-4">
                         <span class="text-sm text-gray-600">{{ auth()->user()->name }}</span>
                         <form method="POST" action="{{ route('logout') }}">
@@ -32,6 +38,12 @@
             @if (session('success'))
                 <div class="mb-4 rounded border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800">
                     {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="mb-4 rounded border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                    {{ session('error') }}
                 </div>
             @endif
 
