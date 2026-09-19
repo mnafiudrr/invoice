@@ -11,6 +11,13 @@
             </p>
         </div>
         <div class="flex items-center gap-3">
+            <form method="POST" action="{{ route('admin.invoices.share', $invoice) }}">
+                @csrf
+                <button type="submit"
+                        class="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
+                    Share Invoice
+                </button>
+            </form>
             <a href="{{ route('admin.invoices.preview', $invoice) }}" target="_blank"
                class="rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
                 Preview
@@ -41,6 +48,53 @@
             </form>
         </div>
     </div>
+
+    @if (session('share_link'))
+        <div class="mt-6 rounded-lg border border-green-200 bg-green-50 p-6" x-data="{ copied: false }">
+            <h2 class="text-sm font-semibold text-green-800">Invoice Share Link</h2>
+            <p class="mt-1 text-sm text-green-700">The password is shown only once.</p>
+            <div class="mt-3 space-y-2">
+                <div class="flex items-center gap-3">
+                    <code class="flex-1 break-all rounded bg-white px-3 py-1.5 text-sm text-green-900">{{ route('shares.show', session('share_link')) }}</code>
+                    <button type="button" @click="navigator.clipboard.writeText('{{ route('shares.show', session('share_link')) }}'); copied = true"
+                            class="rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700"
+                            x-text="copied ? 'Copied!' : 'Copy Link'"></button>
+                </div>
+                <div class="flex items-center gap-3">
+                    <code class="rounded bg-white px-3 py-1.5 text-sm font-mono text-green-900">{{ session('share_password') }}</code>
+                    <button type="button" @click="navigator.clipboard.writeText('{{ session('share_password') }}'); copied = true"
+                            class="rounded-md bg-green-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-green-700"
+                            x-text="copied ? 'Copied!' : 'Copy Password'"></button>
+                </div>
+            </div>
+        </div>
+    @endif
+
+    @if ($invoice->shareLinks->isNotEmpty())
+        <div class="mt-6 rounded-lg border border-gray-200 bg-white p-6">
+            <h2 class="text-sm font-semibold text-gray-900">Active Share Links</h2>
+            <div class="mt-3 space-y-3">
+                @foreach ($invoice->shareLinks as $shareLink)
+                    <div class="flex items-center justify-between rounded border border-gray-200 p-3">
+                        <div class="min-w-0">
+                            <code class="block truncate text-sm text-gray-700">{{ route('shares.show', $shareLink) }}</code>
+                            @if ($shareLink->expires_at)
+                                <p class="mt-1 text-xs text-gray-500">Expires {{ format_date($shareLink->expires_at) }}</p>
+                            @else
+                                <p class="mt-1 text-xs text-gray-500">No expiration</p>
+                            @endif
+                        </div>
+                        <form method="POST" action="{{ route('admin.invoices.share.destroy', [$invoice, $shareLink]) }}"
+                              onsubmit="return confirm('Revoke this share link?')">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="text-sm text-red-600 hover:text-red-800">Revoke</button>
+                        </form>
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 
     <div class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div class="lg:col-span-2 space-y-6">

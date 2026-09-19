@@ -10,9 +10,11 @@ use App\Http\Requests\UpdateInvoiceRequest;
 use App\Models\File;
 use App\Models\Invoice;
 use App\Models\Project;
+use App\Models\ShareLink;
 use App\Services\FileService;
 use App\Services\InvoiceService;
 use App\Services\PaymentService;
+use App\Services\ShareLinkService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -25,6 +27,7 @@ class InvoiceController extends Controller
         private InvoiceService $invoiceService,
         private PaymentService $paymentService,
         private FileService $fileService,
+        private ShareLinkService $shareLinkService,
     ) {}
 
     public function index(Request $request): View
@@ -66,7 +69,7 @@ class InvoiceController extends Controller
     public function show(Invoice $invoice): View
     {
         return view('admin.invoices.show', [
-            'invoice' => $invoice->load('project', 'items', 'payments', 'files'),
+            'invoice' => $invoice->load('project', 'items', 'payments', 'files', 'shareLinks'),
         ]);
     }
 
@@ -156,5 +159,25 @@ class InvoiceController extends Controller
         return redirect()
             ->route('admin.invoices.show', $invoice)
             ->with('success', 'Document deleted.');
+    }
+
+    public function createShare(Invoice $invoice): RedirectResponse
+    {
+        $result = $this->shareLinkService->createForInvoice($invoice);
+
+        return redirect()
+            ->route('admin.invoices.show', $invoice)
+            ->with('share_link', $result['link'])
+            ->with('share_password', $result['password'])
+            ->with('success', 'Share link created.');
+    }
+
+    public function revokeShare(Invoice $invoice, ShareLink $shareLink): RedirectResponse
+    {
+        $this->shareLinkService->revoke($shareLink);
+
+        return redirect()
+            ->route('admin.invoices.show', $invoice)
+            ->with('success', 'Share link revoked.');
     }
 }

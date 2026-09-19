@@ -6,6 +6,7 @@ use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Client\InvoiceController as ClientInvoiceController;
 use App\Http\Controllers\Client\ProjectController as ClientProjectController;
+use App\Http\Controllers\Client\ShareController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', fn () => redirect()->route(
@@ -33,6 +34,16 @@ Route::middleware('project.access')->group(function () {
         ->name('invoices.file');
 });
 
+Route::get('/s/{shareLink:token}', [ShareController::class, 'show'])->name('shares.show');
+Route::get('/s/{shareLink:token}/password', [ShareController::class, 'showPassword'])->name('shares.password');
+Route::post('/s/{shareLink:token}/password', [ShareController::class, 'checkPassword'])
+    ->middleware('throttle:project-password')->name('shares.password.check');
+
+Route::middleware('share.access')->group(function () {
+    Route::get('/s/{shareLink:token}/pdf', [ShareController::class, 'pdf'])->name('shares.pdf');
+    Route::get('/s/{shareLink:token}/file/{file}', [ShareController::class, 'file'])->name('shares.file');
+});
+
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -55,4 +66,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         ->name('invoices.files.store');
     Route::delete('invoices/{invoice}/files/{file}', [InvoiceController::class, 'deleteFile'])
         ->name('invoices.files.destroy');
+    Route::post('invoices/{invoice}/share', [InvoiceController::class, 'createShare'])
+        ->name('invoices.share');
+    Route::delete('invoices/{invoice}/share/{shareLink}', [InvoiceController::class, 'revokeShare'])
+        ->name('invoices.share.destroy');
 });

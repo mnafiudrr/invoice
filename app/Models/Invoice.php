@@ -77,6 +77,11 @@ class Invoice extends Model
         return $this->hasMany(File::class);
     }
 
+    public function shareLinks(): HasMany
+    {
+        return $this->hasMany(ShareLink::class);
+    }
+
     public function isPaid(): bool
     {
         return $this->status === self::STATUS_PAID;
