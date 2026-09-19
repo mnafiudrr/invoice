@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\InvoiceController;
 use App\Http\Controllers\Admin\ProjectController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Client\InvoiceController as ClientInvoiceController;
 use App\Http\Controllers\Client\ProjectController as ClientProjectController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +22,16 @@ Route::post('/logout', [AuthController::class, 'logout'])
     ->middleware('auth')->name('logout');
 
 Route::get('/p/{project:slug}', [ClientProjectController::class, 'show'])->name('projects.show');
+Route::get('/p/{project:slug}/password', [ClientProjectController::class, 'showPassword'])->name('projects.password');
+Route::post('/p/{project:slug}/password', [ClientProjectController::class, 'checkPassword'])
+    ->middleware('throttle:project-password')->name('projects.password.check');
+
+Route::middleware('project.access')->group(function () {
+    Route::get('/p/{project:slug}/f/{invoice:invoice_number}', [ClientInvoiceController::class, 'show'])
+        ->name('invoices.show');
+    Route::get('/p/{project:slug}/f/{invoice:invoice_number}/file/{file}', [ClientInvoiceController::class, 'file'])
+        ->name('invoices.file');
+});
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
