@@ -2,9 +2,9 @@
 
 Phase 5. Source: `mvp.md` §24 Phase 5, `.docs/plans/features/005-payment-management.md`.
 
-- [ ] Create `payments` migration (per data-model.md).
+- [ ] Create `payments` migration via `php artisan make:migration create_payments_table` (per data-model.md).
 - [ ] Create `Payment` model (`belongsTo Invoice`).
-- [ ] Create `files` migration (project_id, invoice_id, type, path, original_filename, mime_type, size).
+- [ ] Create `files` migration via `php artisan make:migration create_files_table` (project_id, invoice_id, type, path, original_filename, mime_type, size).
 - [ ] Create `File` model (`belongsTo Project`, `belongsTo Invoice`).
 - [ ] "Mark as Paid" form: amount, paid_at, method, reference, notes.
 - [ ] Service: on mark-paid, create payment + set invoice status → `paid`.

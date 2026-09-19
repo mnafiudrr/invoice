@@ -2,7 +2,7 @@
 
 Phase 2. Source: `mvp.md` §24 Phase 2, `.docs/plans/features/002-project-management.md`.
 
-- [ ] Create `projects` migration (per data-model.md).
+- [ ] Create `projects` migration via `php artisan make:migration create_projects_table` (per data-model.md).
 - [ ] Create `Project` model + relationships (`belongsTo User`, `hasMany Invoices`, `hasMany Files`).
 - [ ] Add unique index on `projects.slug`.
 - [ ] Create project FormRequest with validation rules.

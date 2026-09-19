@@ -2,6 +2,11 @@
 
 ## Conventions
 
+- **Always create migrations via `php artisan make:migration`** — never write migration files by hand. The artisan generator produces the correct file layout, timestamps, and class registration.
+  ```bash
+  php artisan make:migration create_projects_table
+  php artisan make:migration add_paid_at_to_payments_table
+  ```
 - One table per migration file. Use Laravel's default naming (`create_projects_table`, `add_paid_at_to_payments_table`).
 - Use the schema builder; no raw SQL unless unavoidable.
 - Always use `$table->foreignId(...)->constrained()->cascadeOnDelete()` (or the appropriate delete rule) for FKs.
@@ -37,6 +42,7 @@ Schema::create('projects', function (Blueprint $table) {
 
 ## Anti-patterns
 
+- Creating migration files by hand instead of `php artisan make:migration`.
 - No `float` for money.
 - No missing FKs (`constrained()`).
 - No modifying tables without a down method that restores the previous state.

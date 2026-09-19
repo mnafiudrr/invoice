@@ -2,7 +2,7 @@
 
 Phase 3. Source: `mvp.md` §24 Phase 3, `.docs/plans/features/003-invoice-management.md`.
 
-- [ ] Create `invoices` + `invoice_items` migrations (per data-model.md).
+- [ ] Create `invoices` + `invoice_items` migrations via `php artisan make:migration` (per data-model.md).
 - [ ] Create `Invoice` model (`belongsTo Project`, `hasMany InvoiceItems`, `hasMany Payments`, `hasMany Files`).
 - [ ] Create `InvoiceItem` model (`belongsTo Invoice`).
 - [ ] Invoice number generator: `INV-{YEAR}-{seq}` with unique enforcement.
