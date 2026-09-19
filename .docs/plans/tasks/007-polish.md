@@ -2,16 +2,16 @@
 
 Phase 7. Source: `mvp.md` §24 Phase 7, `.docs/plans/scopes/security.md`, `.docs/plans/features/009-admin-dashboard.md`.
 
-- [ ] Dashboard with summary cards (projects, invoices, paid, unpaid).
-- [ ] Recent invoices list on dashboard.
-- [ ] Improve invoice PDF design (typography, spacing, status badge).
-- [ ] Responsive UI pass on all admin + client pages.
-- [ ] Error pages (403/404/419/500) styled.
-- [ ] Empty states for lists/dashboards.
-- [ ] Rate limiting configured globally (login + password attempts).
-- [ ] Money/date formatting helper consistent across pages.
-- [ ] Production Docker config (non-root user, nginx, optimized).
-- [ ] Backup strategy note (Postgres dump + private storage copy).
-- [ ] `.env.example` documenting all config.
-- [ ] Security checklist review from security.md.
-- [ ] Final end-to-end smoke test in Docker.
+- [x] Dashboard with summary cards (projects, invoices, paid, unpaid).
+- [x] Recent invoices list on dashboard.
+- [x] Improve invoice PDF design (typography, spacing, status badge).
+- [x] Responsive UI pass on all admin + client pages.
+- [x] Error pages (403/404/419/500) styled.
+- [x] Empty states for lists/dashboards.
+- [x] Rate limiting configured globally (login + password attempts).
+- [x] Money/date formatting helper consistent across pages.
+- [x] Production Docker config (non-root user, nginx, optimized).
+- [x] Backup strategy note (Postgres dump + private storage copy).
+- [x] `.env.example` documenting all config.
+- [x] Security checklist review from security.md.
+- [x] Final end-to-end smoke test in Docker.
