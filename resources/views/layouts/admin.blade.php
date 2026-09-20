@@ -15,10 +15,10 @@
              @click="drawerOpen = false"></div>
 
         {{-- Sidebar --}}
-        <aside x-show="drawerOpen" x-transition:enter="transition ease-out duration-150" x-transition:enter-start="-translate-x-full"
-               x-transition:enter-end="translate-x-0" x-transition:leave="transition ease-in duration-100" x-transition:leave-start="translate-x-0"
-               x-transition:leave-end="-translate-x-full"
-               class="fixed inset-y-0 left-0 z-40 w-64 transform bg-white shadow-lg lg:static lg:z-auto lg:block lg:translate-x-0 lg:shadow-none">
+        <aside
+            :class="drawerOpen ? '-translate-x-0' : '-translate-x-full'"
+            class="fixed inset-y-0 left-0 z-40 w-64 transform bg-white shadow-lg transition-transform duration-150 ease-in-out lg:static lg:z-auto lg:translate-x-0 lg:shadow-none"
+        >
             <div class="flex h-16 items-center justify-between border-b border-gray-200 px-6">
                 <a href="{{ route('admin.dashboard') }}" class="text-lg font-semibold">{{ config('app.name') }}</a>
                 <button type="button" class="lg:hidden text-gray-500 hover:text-gray-900" @click="drawerOpen = false" aria-label="Close menu">
