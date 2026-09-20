@@ -23,7 +23,7 @@
             <option value="" @selected($value === null || $value === '')>{{ $placeholder }}</option>
         @endif
         @foreach ($options as $optionValue => $optionLabel)
-            @if (is_int($optionValue))
+            @if (array_is_list($options))
                 <option value="{{ $optionLabel }}" @selected($value == $optionLabel)>{{ $optionLabel }}</option>
             @else
                 <option value="{{ $optionValue }}" @selected($value == $optionValue)>{{ $optionLabel }}</option>

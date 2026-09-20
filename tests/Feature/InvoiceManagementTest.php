@@ -157,4 +157,16 @@ class InvoiceManagementTest extends TestCase
             'status' => Invoice::STATUS_SENT,
         ]);
     }
+
+    public function test_edit_page_project_select_renders_numeric_values(): void
+    {
+        $this->actingAs($this->owner);
+
+        $invoice = Invoice::factory()->for($this->project)->create(['invoice_number' => 'INV-2026-001']);
+
+        $this->get(route('admin.invoices.edit', $invoice))
+            ->assertOk()
+            ->assertSee('value="'.$this->project->id.'" selected', false)
+            ->assertDontSee('value="'.$this->project->name.'"', false);
+    }
 }
