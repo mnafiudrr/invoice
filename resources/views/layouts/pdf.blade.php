@@ -6,11 +6,11 @@
     <style>
         body { font-family: Arial, Helvetica, sans-serif; color: #111827; margin: 0; }
         .invoice { max-width: 720px; margin: 40px auto; padding: 0 24px; }
-        .header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #111827; padding-bottom: 24px; }
+        .header { position: relative; display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #111827; padding-bottom: 24px; }
         .header h1 { margin: 0; font-size: 28px; letter-spacing: 2px; text-transform: uppercase; }
         .number { font-size: 16px; font-weight: 600; margin: 6px 0 0; }
         .date { font-size: 12px; color: #6b7280; margin: 2px 0 0; }
-        .paid-stamp { display: inline-block; color: rgba(22, 163, 74, 0.6); border: 15px solid rgba(22, 163, 74, 0.6); font-weight: 700; font-size: 170px; letter-spacing: 15px; text-transform: uppercase; padding: 20px 70px; border-radius: 20px; transform: rotate(-25deg); -webkit-transform: rotate(-25deg); }
+        .paid-stamp { position: absolute; top: 20px; right: 40px; z-index: 10; color: rgba(22, 163, 74, 0.6); border: 9px solid rgba(22, 163, 74, 0.6); font-weight: 700; font-size: 102px; letter-spacing: 9px; text-transform: uppercase; padding: 12px 42px; border-radius: 12px; transform: rotate(-25deg); -webkit-transform: rotate(-25deg); }
         .parties { display: flex; justify-content: space-between; margin-top: 24px; }
         .parties h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; margin: 0 0 6px; }
         .parties p { margin: 2px 0; font-size: 13px; }
