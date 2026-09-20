@@ -10,7 +10,7 @@
         .header h1 { margin: 0; font-size: 28px; letter-spacing: 2px; text-transform: uppercase; }
         .number { font-size: 16px; font-weight: 600; margin: 6px 0 0; }
         .date { font-size: 12px; color: #6b7280; margin: 2px 0 0; }
-        .paid-stamp { border: 3px solid #16a34a; color: #16a34a; font-weight: 700; font-size: 24px; padding: 6px 14px; transform: rotate(-8deg); border-radius: 4px; }
+        .paid-stamp { display: inline-block; background-color: #16a34a; color: #ffffff; font-weight: 700; font-size: 16px; letter-spacing: 2px; padding: 6px 18px; border-radius: 3px; text-transform: uppercase; }
         .parties { display: flex; justify-content: space-between; margin-top: 24px; }
         .parties h2 { font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #6b7280; margin: 0 0 6px; }
         .parties p { margin: 2px 0; font-size: 13px; }
