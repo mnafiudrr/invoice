@@ -17,6 +17,7 @@ use App\Services\PaymentService;
 use App\Services\ShareLinkService;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -102,8 +103,8 @@ class InvoiceController extends Controller
 
     public function preview(Invoice $invoice): View
     {
-        return view('pdf.invoice', [
-            'invoice' => $invoice->load('project', 'items'),
+        return view('admin.invoices.preview', [
+            'invoice' => $invoice->load('project', 'items', 'payments', 'files'),
         ]);
     }
 
@@ -119,6 +120,13 @@ class InvoiceController extends Controller
     public function downloadPdf(Invoice $invoice): StreamedResponse
     {
         return $this->invoiceService->streamPdf($invoice);
+    }
+
+    public function downloadFile(Invoice $invoice, File $file): StreamedResponse
+    {
+        abort_if($file->invoice_id !== $invoice->id, 404);
+
+        return Storage::disk('private')->response($file->path, $file->original_filename);
     }
 
     public function changeStatus(Request $request, Invoice $invoice): RedirectResponse

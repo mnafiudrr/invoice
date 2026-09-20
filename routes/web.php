@@ -66,6 +66,8 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         ->name('invoices.files.store');
     Route::delete('invoices/{invoice}/files/{file}', [InvoiceController::class, 'deleteFile'])
         ->name('invoices.files.destroy');
+    Route::get('invoices/{invoice}/files/{file}', [InvoiceController::class, 'downloadFile'])
+        ->name('invoices.files.download');
     Route::post('invoices/{invoice}/share', [InvoiceController::class, 'createShare'])
         ->name('invoices.share');
     Route::delete('invoices/{invoice}/share/{shareLink}', [InvoiceController::class, 'revokeShare'])
