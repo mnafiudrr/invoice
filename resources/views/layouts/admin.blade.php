@@ -8,25 +8,28 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="bg-gray-100 text-gray-900 antialiased">
-    <div class="min-h-full lg:flex" x-data="{ drawerOpen: false }">
+    <div class="min-h-screen lg:flex" x-data="{ drawerOpen: false, sidebarCollapsed: false }">
         {{-- Mobile drawer backdrop --}}
         <div x-show="drawerOpen" x-transition.opacity
              class="fixed inset-0 z-30 bg-gray-900/50 lg:hidden"
              @click="drawerOpen = false"></div>
 
-        {{-- Sidebar --}}
+        {{-- Sidebar: mobile drawer / desktop full-height column --}}
         <aside
-            :class="drawerOpen ? '-translate-x-0' : '-translate-x-full'"
-            class="fixed inset-y-0 left-0 z-40 w-64 transform bg-white shadow-lg transition-transform duration-150 ease-in-out lg:static lg:z-auto lg:translate-x-0 lg:shadow-none"
+            :class="[
+                drawerOpen ? 'translate-x-0' : '-translate-x-full',
+                sidebarCollapsed ? 'lg:hidden' : '',
+            ]"
+            class="fixed inset-y-0 left-0 z-40 flex w-64 transform flex-col bg-white shadow-lg transition-transform duration-150 ease-in-out lg:static lg:z-auto lg:h-screen lg:translate-x-0 lg:shadow-none"
         >
-            <div class="flex h-16 items-center justify-between border-b border-gray-200 px-6">
+            <div class="flex h-16 shrink-0 items-center justify-between border-b border-gray-200 px-6">
                 <a href="{{ route('admin.dashboard') }}" class="text-lg font-semibold">{{ config('app.name') }}</a>
                 <button type="button" class="lg:hidden text-gray-500 hover:text-gray-900" @click="drawerOpen = false" aria-label="Close menu">
                     &times;
                 </button>
             </div>
 
-            <nav class="px-3 py-4">
+            <nav class="flex-1 overflow-y-auto px-3 py-4">
                 @php
                     $route = request()->route()?->getName() ?? '';
                     $navItems = [
@@ -64,13 +67,20 @@
         </aside>
 
         {{-- Main column --}}
-        <div class="flex min-w-0 flex-1 flex-col">
+        <div class="flex min-w-0 flex-1 flex-col lg:h-screen">
             <header class="sticky top-0 z-20 border-b border-gray-200 bg-white">
                 <div class="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
                     <div class="flex items-center gap-3">
                         <button type="button" class="lg:hidden text-gray-500 hover:text-gray-900" @click="drawerOpen = true" aria-label="Open menu">
                             <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+                            </svg>
+                        </button>
+                        <button type="button" class="hidden lg:inline-flex text-gray-500 hover:text-gray-900" @click="sidebarCollapsed = !sidebarCollapsed"
+                                :aria-expanded="!sidebarCollapsed" aria-label="Toggle sidebar">
+                            <svg class="size-6" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true"
+                                 :class="sidebarCollapsed ? 'rotate-180' : ''" x-cloak>
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
                             </svg>
                         </button>
                         <a href="{{ route('admin.dashboard') }}" class="text-lg font-semibold lg:hidden">{{ config('app.name') }}</a>
@@ -87,7 +97,7 @@
                 </div>
             </header>
 
-            <main class="flex-1 px-4 py-8 sm:px-6 lg:px-8">
+            <main class="flex-1 overflow-y-auto px-4 py-8 sm:px-6 lg:px-8">
                 <div class="mx-auto max-w-7xl">
                     @include('partials.admin.flash')
                     @yield('content')
