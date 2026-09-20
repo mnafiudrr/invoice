@@ -40,6 +40,6 @@ class DashboardTest extends TestCase
         $this->actingAs($owner)
             ->get(route('admin.dashboard'))
             ->assertOk()
-            ->assertSee('No invoices yet.');
+            ->assertSee('No invoices yet');
     }
 }
