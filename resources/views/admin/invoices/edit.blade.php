@@ -13,7 +13,7 @@
           x-data="{ submitting: false }" @submit="submitting = true">
         @csrf
         @method('PUT')
-        @include('admin.invoices._form', ['invoice' => $invoice])
+        @include('admin.invoices._form', ['invoice' => $invoice, 'project' => $project])
 
         <div class="flex items-center gap-3">
             <x-button type="submit" x-bind:disabled="submitting">

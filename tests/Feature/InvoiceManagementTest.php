@@ -34,11 +34,42 @@ class InvoiceManagementTest extends TestCase
             'due_at' => now()->addDays(7)->format('Y-m-d'),
             'tax' => 100000,
             'notes' => 'Payment via BCA.',
+            'payment_terms' => 'Down payment 50%; Bank Transfer: BCA 0462329383',
             'items' => [
                 ['description' => 'Website Development', 'quantity' => 2, 'unit_price' => 5000000],
                 ['description' => 'Hosting Setup', 'quantity' => 1, 'unit_price' => 500000],
             ],
         ], $overrides);
+    }
+
+    public function test_create_persists_payment_terms(): void
+    {
+        $this->actingAs($this->owner);
+
+        $this->post(route('admin.invoices.store'), $this->validPayload(['invoice_number' => 'INV-2026-001']))
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('invoices', [
+            'invoice_number' => 'INV-2026-001',
+            'payment_terms' => 'Down payment 50%; Bank Transfer: BCA 0462329383',
+        ]);
+    }
+
+    public function test_update_cannot_change_project(): void
+    {
+        $this->actingAs($this->owner);
+
+        $other = Project::factory()->create(['user_id' => $this->owner->id]);
+        $invoice = Invoice::factory()->for($this->project)->create(['invoice_number' => 'INV-2026-001']);
+
+        $payload = $this->validPayload(['invoice_number' => 'INV-2026-001']);
+        $payload['project_id'] = $other->id;
+
+        $this->put(route('admin.invoices.update', $invoice), $payload)
+            ->assertRedirect(route('admin.invoices.show', $invoice));
+
+        $invoice->refresh();
+        $this->assertSame($this->project->id, $invoice->project_id);
     }
 
     public function test_owner_can_create_invoice_with_computed_totals(): void
@@ -158,15 +189,24 @@ class InvoiceManagementTest extends TestCase
         ]);
     }
 
-    public function test_edit_page_project_select_renders_numeric_values(): void
+    public function test_edit_page_project_is_locked_and_not_changeable(): void
     {
         $this->actingAs($this->owner);
 
         $invoice = Invoice::factory()->for($this->project)->create(['invoice_number' => 'INV-2026-001']);
 
-        $this->get(route('admin.invoices.edit', $invoice))
-            ->assertOk()
-            ->assertSee('value="'.$this->project->id.'" selected', false)
-            ->assertDontSee('value="'.$this->project->name.'"', false);
+        $response = $this->get(route('admin.invoices.edit', $invoice));
+
+        $response->assertOk();
+        $html = $response->getContent();
+        // Locked project: hidden input carries the id; no editable project select
+        $this->assertMatchesRegularExpression(
+            '/name="project_id"[^>]*value="'.$this->project->id.'"/',
+            $html
+        );
+        $this->assertDoesNotMatchRegularExpression(
+            '/<select[^>]*name="project_id"/',
+            $html
+        );
     }
 }

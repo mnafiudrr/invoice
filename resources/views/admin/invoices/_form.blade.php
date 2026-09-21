@@ -1,5 +1,6 @@
 @php
     $invoice = $invoice ?? null;
+    $project = $project ?? ($invoice?->project ?? null);
     $items = old('items', $invoice?->items?->map(fn ($item) => [
         'description' => $item->description,
         'quantity' => (float) $item->quantity,
@@ -11,10 +12,17 @@
 <div class="space-y-6" x-data="invoiceForm(@js($initialItems))">
     <x-card title="Invoice">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <x-select name="project_id" :label="'Project'" :required="true"
-                      :options="$projects->pluck('name', 'id')->all()"
-                      placeholder="Select project"
-                      :value="old('project_id', $invoice?->project_id)" />
+            <div class="sm:col-span-2">
+                @if ($project)
+                    <input type="hidden" name="project_id" value="{{ $project->id }}">
+                    <x-input :label="'Project'" :value="$project->name" disabled />
+                @else
+                    <x-select name="project_id" :label="'Project'" :required="true"
+                              :options="$projects->pluck('name', 'id')->all()"
+                              placeholder="Select project"
+                              :value="old('project_id', $invoice?->project_id)" />
+                @endif
+            </div>
             <x-input name="invoice_number" :label="'Invoice number'"
                      :hint="$invoice ? null : 'INV-2026-001 (auto if blank)'"
                      :value="old('invoice_number', $invoice?->invoice_number)" />
@@ -63,13 +71,18 @@
         </div>
     </x-card>
 
-    <x-card title="Tax & Notes">
+    <x-card title="Tax, Notes & Payment">
         <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <x-input name="tax" type="number" step="0.01" min="0" :label="'Tax'"
                      :value="old('tax', $invoice?->tax ?? 0)" />
             <div class="sm:col-span-2">
                 <x-textarea name="notes" :label="'Notes'" rows="2"
                             :value="old('notes', $invoice?->notes)" />
+            </div>
+            <div class="sm:col-span-3">
+                <x-textarea name="payment_terms" :label="'Payment Terms'" rows="3"
+                            hint="e.g. Down payment 50% (Rp ...); Bank Transfer: BCA ..."
+                            :value="old('payment_terms', $invoice?->payment_terms)" />
             </div>
         </div>
     </x-card>

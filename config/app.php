@@ -137,6 +137,9 @@ return [
         'name' => env('OWNER_NAME', 'Owner'),
         'email' => env('OWNER_EMAIL', 'owner@example.com'),
         'password' => env('OWNER_PASSWORD', 'password'),
+        'company' => env('OWNER_COMPANY', 'Fiu Project'),
+        'address' => env('OWNER_ADDRESS', 'Purwokerto, Jawa Tengah 53135'),
+        'phone' => env('OWNER_PHONE', '+62 822 2718 1613'),
     ],
 
 ];

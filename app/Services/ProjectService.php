@@ -17,6 +17,7 @@ class ProjectService
             'client_name' => $data['client_name'],
             'client_email' => $data['client_email'],
             'client_company' => $data['client_company'] ?? null,
+            'client_address' => $data['client_address'] ?? null,
             'description' => $data['description'] ?? null,
             'access_password_hash' => Hash::make($data['password']),
         ]);
@@ -32,6 +33,7 @@ class ProjectService
             'client_name' => $data['client_name'],
             'client_email' => $data['client_email'],
             'client_company' => $data['client_company'] ?? null,
+            'client_address' => $data['client_address'] ?? null,
             'description' => $data['description'] ?? null,
         ]);
 

@@ -22,6 +22,7 @@ class StoreProjectRequest extends FormRequest
             'client_name' => ['required', 'string', 'max:255'],
             'client_email' => ['required', 'email', 'max:255'],
             'client_company' => ['nullable', 'string', 'max:255'],
+            'client_address' => ['nullable', 'string', 'max:2000'],
             'description' => ['nullable', 'string', 'max:2000'],
             'password' => ['required', 'string', 'min:8'],
         ];

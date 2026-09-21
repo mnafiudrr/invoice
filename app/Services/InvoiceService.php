@@ -35,6 +35,7 @@ class InvoiceService
                 'due_at' => $data['due_at'] ?? null,
                 'status' => $data['status'] ?? Invoice::STATUS_DRAFT,
                 'notes' => $data['notes'] ?? null,
+                'payment_terms' => $data['payment_terms'] ?? null,
             ]);
 
             foreach ($items as $item) {
@@ -55,7 +56,6 @@ class InvoiceService
 
         return DB::transaction(function () use ($invoice, $data, $items, $subtotal, $tax, $total) {
             $invoice->update([
-                'project_id' => $data['project_id'],
                 'invoice_number' => $data['invoice_number'],
                 'language' => $data['language'],
                 'currency' => $data['currency'],
@@ -65,6 +65,7 @@ class InvoiceService
                 'issued_at' => $data['issued_at'],
                 'due_at' => $data['due_at'] ?? null,
                 'notes' => $data['notes'] ?? null,
+                'payment_terms' => $data['payment_terms'] ?? null,
             ]);
 
             $invoice->items()->delete();

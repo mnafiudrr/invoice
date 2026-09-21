@@ -24,6 +24,10 @@
             <x-input name="client_name" :label="'Client name'" :required="true" :value="old('client_name', $project?->client_name)" />
             <x-input name="client_email" type="email" :label="'Client email'" :required="true" :value="old('client_email', $project?->client_email)" />
             <x-input name="client_company" :label="'Client company'" :value="old('client_company', $project?->client_company)" />
+            <div class="sm:col-span-2">
+                <x-textarea name="client_address" :label="'Client address'" rows="2"
+                            :value="old('client_address', $project?->client_address)" />
+            </div>
         </div>
     </x-card>
 </div>

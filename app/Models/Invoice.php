@@ -47,6 +47,7 @@ class Invoice extends Model
         'due_at',
         'status',
         'notes',
+        'payment_terms',
     ];
 
     protected $casts = [

@@ -18,6 +18,7 @@ class Project extends Model
         'client_name',
         'client_email',
         'client_company',
+        'client_address',
         'description',
         'access_password_hash',
     ];

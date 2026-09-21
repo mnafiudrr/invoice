@@ -50,9 +50,16 @@ class InvoiceController extends Controller
         ]);
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
+        $project = null;
+
+        if ($request->filled('project_id')) {
+            $project = Project::findOrFail($request->integer('project_id'));
+        }
+
         return view('admin.invoices.create', [
+            'project' => $project,
             'projects' => Project::orderBy('name')->get(),
             'languages' => Invoice::$languages,
         ]);
@@ -77,7 +84,8 @@ class InvoiceController extends Controller
     public function edit(Invoice $invoice): View
     {
         return view('admin.invoices.edit', [
-            'invoice' => $invoice->load('items'),
+            'invoice' => $invoice->load('items', 'project'),
+            'project' => $invoice->project,
             'projects' => Project::orderBy('name')->get(),
             'languages' => Invoice::$languages,
         ]);
