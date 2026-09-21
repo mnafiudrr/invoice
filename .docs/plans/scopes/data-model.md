@@ -38,6 +38,7 @@ Relations: `hasMany projects`.
 | client_name | varchar | |
 | client_email | varchar | |
 | client_company | varchar nullable | |
+| client_address | text nullable | shown on invoice Bill To |
 | description | text nullable | |
 | access_password_hash | varchar | bcrypt of project password |
 | timestamps | | |
@@ -62,6 +63,7 @@ Relations: `belongsTo users`, `hasMany invoices`, `hasMany files`.
 | due_at | date nullable | |
 | status | varchar | `draft/sent/paid/cancelled` |
 | notes | text nullable | |
+| payment_terms | text nullable | shown as Payment Information on invoice |
 | timestamps | | |
 
 Relations: `belongsTo projects`, `hasMany invoice_items`, `hasMany payments`, `hasMany files`.
