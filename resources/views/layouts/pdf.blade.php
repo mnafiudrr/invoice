@@ -42,7 +42,7 @@
 
         .paid-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; z-index: 10; display: table; width: 100%; height: 100%; text-align: center; }
         .paid-stamp-cell { display: table-cell; vertical-align: middle; }
-        .paid-stamp { display: inline-block; color: rgba(22, 163, 74, 0.3); border: 9px solid rgba(22, 163, 74, 0.3); font-weight: 700; font-size: 102px; letter-spacing: 9px; text-transform: uppercase; padding: 12px 42px; border-radius: 12px; transform: translateY(300px) rotate(-25deg); -webkit-transform: translateY(300px) rotate(-25deg); }
+        .paid-stamp { display: inline-block; color: rgba(22, 163, 74, 0.3); border: 9px solid rgba(22, 163, 74, 0.3); font-weight: 700; font-size: 102px; letter-spacing: 9px; text-transform: uppercase; padding: 12px 42px; border-radius: 12px; transform: translateY(225px) rotate(-25deg); -webkit-transform: translateY(225px) rotate(-25deg); }
     </style>
 </head>
 <body>
