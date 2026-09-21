@@ -2,46 +2,63 @@
 
 @section('content')
     <div class="invoice">
-        <div class="header">
-            <div>
-                <h1>{{ __('invoice.invoice') }}</h1>
-                <p class="number">{{ $invoice->invoice_number }}</p>
-                <p class="date">{{ __('invoice.issued_date') }}: {{ format_date($invoice->issued_at) }}</p>
-                @if ($invoice->due_at)
-                    <p class="date">{{ __('invoice.due_date') }}: {{ format_date($invoice->due_at) }}</p>
-                @endif
+        @if ($invoice->isPaid())
+            <div class="paid-overlay">
+                <div class="paid-stamp-cell">
+                    <div class="paid-stamp">{{ __('invoice.paid') }}</div>
+                </div>
             </div>
-        </div>
+        @endif
 
-        <div class="body">
-            @if ($invoice->isPaid())
-                <div class="paid-overlay">
-                    <div class="paid-stamp-cell">
-                        <div class="paid-stamp">{{ __('invoice.paid') }}</div>
-                    </div>
-                </div>
-            @endif
-
-            <div class="parties">
-                <div>
-                    <h2>{{ __('invoice.from') }}</h2>
-                    <p class="company">{{ config('app.owner.company') }}</p>
-                    <p>{{ config('app.owner.name') }}</p>
-                    <p>{{ config('app.owner.address') }}</p>
-                    <p>{{ config('app.owner.phone') }}</p>
-                    <p>{{ config('app.owner.email') }}</p>
-                </div>
-                <div>
-                    <h2>{{ __('invoice.bill_to') }}</h2>
-                    <p class="company">{{ $invoice->project->client_company ?: $invoice->project->client_name }}</p>
-                    <p>{{ $invoice->project->client_name }}</p>
-                    @if ($invoice->project->client_address)
-                        <p>{{ $invoice->project->client_address }}</p>
+        <table class="head" style="width:100%;">
+            <tr>
+                <td style="width:55%; vertical-align: top;">
+                    <p class="label">{{ __('invoice.invoice') }}</p>
+                    <p class="number">{{ $invoice->invoice_number }}</p>
+                    <p class="date">{{ __('invoice.issued_date') }}: {{ format_date($invoice->issued_at) }}</p>
+                    @if ($invoice->due_at)
+                        <p class="date">{{ __('invoice.due_date') }}: {{ format_date($invoice->due_at) }}</p>
                     @endif
-                    <p>{{ $invoice->project->client_email }}</p>
-                </div>
-            </div>
+                </td>
+                <td style="width:45%; text-align: right; vertical-align: top;">
+                    <p style="font-size:18px; font-weight:600; margin:0; color:#111827;">{{ format_money($invoice->total, $invoice->currency) }}</p>
+                    <div style="margin-top:4px;">
+                        @if ($invoice->isPaid())
+                            <span style="display:inline-block; background:#dcfce7; color:#15803d; font-size:12px; font-weight:500; padding:2px 10px; border-radius:9999px;">PAID</span>
+                            @if ($invoice->payments->isNotEmpty())
+                                <span style="font-size:12px; color:#6b7280; margin-left:8px;">{{ __('invoice.paid') }} on {{ format_date($invoice->payments->first()->paid_at) }}</span>
+                            @endif
+                        @else
+                            <span style="display:inline-block; background:#fef3c7; color:#b45309; font-size:12px; font-weight:500; padding:2px 10px; border-radius:9999px;">UNPAID</span>
+                        @endif
+                    </div>
+                </td>
+            </tr>
+        </table>
 
+        <table class="parties" style="width:100%;">
+            <tr>
+                <td style="width:50%; vertical-align: top;">
+                    <p class="col-label">{{ __('invoice.from') }}</p>
+                    <p class="company">{{ config('app.owner.company') }}</p>
+                    <p class="line">{{ config('app.owner.name') }}</p>
+                    <p class="line">{{ config('app.owner.address') }}</p>
+                    <p class="line">{{ config('app.owner.phone') }}</p>
+                    <p class="line">{{ config('app.owner.email') }}</p>
+                </td>
+                <td style="width:50%; vertical-align: top;">
+                    <p class="col-label">{{ __('invoice.bill_to') }}</p>
+                    <p class="company">{{ $invoice->project->client_company ?: $invoice->project->client_name }}</p>
+                    <p class="line">{{ $invoice->project->client_name }}</p>
+                    @if ($invoice->project->client_address)
+                        <p class="line">{{ $invoice->project->client_address }}</p>
+                    @endif
+                    <p class="line">{{ $invoice->project->client_email }}</p>
+                </td>
+            </tr>
+        </table>
+
+        <div class="items-wrap">
             <table class="items">
                 <thead>
                     <tr>
@@ -54,44 +71,44 @@
                 <tbody>
                     @foreach ($invoice->items as $item)
                         <tr>
-                            <td>{{ $item->description }}</td>
+                            <td class="desc">{{ $item->description }}</td>
                             <td class="num">{{ $item->quantity }}</td>
                             <td class="num">{{ format_money($item->unit_price, $invoice->currency) }}</td>
-                            <td class="num">{{ format_money($item->amount, $invoice->currency) }}</td>
+                            <td class="amt num">{{ format_money($item->amount, $invoice->currency) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
 
-            <div class="totals">
-                <div class="row">
-                    <span>{{ __('invoice.subtotal') }}</span>
-                    <span>{{ format_money($invoice->subtotal, $invoice->currency) }}</span>
-                </div>
-                <div class="row">
-                    <span>{{ __('invoice.tax') }}</span>
-                    <span>{{ format_money($invoice->tax, $invoice->currency) }}</span>
-                </div>
-                <div class="row total">
-                    <span>{{ __('invoice.total') }}</span>
-                    <span>{{ format_money($invoice->total, $invoice->currency) }}</span>
-                </div>
-            </div>
-
-            @if ($invoice->notes)
-                <div class="notes">
-                    <h2>{{ __('invoice.notes') }}</h2>
-                    <p>{{ $invoice->notes }}</p>
-                </div>
-            @endif
-
-            @if ($invoice->payment_terms)
-                <div class="terms">
-                    <h2>{{ __('invoice.payment_information') }}</h2>
-                    <p>{{ $invoice->payment_terms }}</p>
-                </div>
-            @endif
+            <table class="totals">
+                <tr class="row">
+                    <td class="k">{{ __('invoice.subtotal') }}</td>
+                    <td class="v">{{ format_money($invoice->subtotal, $invoice->currency) }}</td>
+                </tr>
+                <tr class="row">
+                    <td class="k">{{ __('invoice.tax') }}</td>
+                    <td class="v">{{ format_money($invoice->tax, $invoice->currency) }}</td>
+                </tr>
+                <tr class="row total">
+                    <td class="k">{{ __('invoice.total') }}</td>
+                    <td class="v">{{ format_money($invoice->total, $invoice->currency) }}</td>
+                </tr>
+            </table>
         </div>
+
+        @if ($invoice->notes)
+            <div class="box">
+                <p class="box-label">{{ __('invoice.notes') }}</p>
+                <p class="box-body">{{ $invoice->notes }}</p>
+            </div>
+        @endif
+
+        @if ($invoice->payment_terms)
+            <div class="box">
+                <p class="box-label">{{ __('invoice.payment_information') }}</p>
+                <p class="box-body">{{ $invoice->payment_terms }}</p>
+            </div>
+        @endif
 
         <p class="thanks">{{ __('invoice.thank_you') }}</p>
     </div>
