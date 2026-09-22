@@ -17,6 +17,8 @@ class Invoice extends Model
 
     public const STATUS_PAID = 'paid';
 
+    public const STATUS_PARTIALLY_PAID = 'partially_paid';
+
     public const STATUS_CANCELLED = 'cancelled';
 
     public const LANGUAGE_ID = 'id';
@@ -26,7 +28,17 @@ class Invoice extends Model
     public static array $statuses = [
         self::STATUS_DRAFT,
         self::STATUS_SENT,
+        self::STATUS_PARTIALLY_PAID,
         self::STATUS_PAID,
+        self::STATUS_CANCELLED,
+    ];
+
+    /**
+     * Statuses an owner may set manually. Paid/partially-paid are derived from payments.
+     */
+    public static array $manualStatuses = [
+        self::STATUS_DRAFT,
+        self::STATUS_SENT,
         self::STATUS_CANCELLED,
     ];
 
@@ -86,5 +98,25 @@ class Invoice extends Model
     public function isPaid(): bool
     {
         return $this->status === self::STATUS_PAID;
+    }
+
+    public function isPartiallyPaid(): bool
+    {
+        return $this->status === self::STATUS_PARTIALLY_PAID;
+    }
+
+    public function isCancelled(): bool
+    {
+        return $this->status === self::STATUS_CANCELLED;
+    }
+
+    public function paidAmount(): float
+    {
+        return (float) $this->payments()->sum('amount');
+    }
+
+    public function remainingAmount(): float
+    {
+        return max(0, (float) $this->total - $this->paidAmount());
     }
 }

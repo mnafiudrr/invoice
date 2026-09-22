@@ -5,12 +5,13 @@
 @section('content')
     <x-page-header title="Dashboard" subtitle="Overview of your projects and invoices" />
 
-    <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
         @php
             $stats = [
                 ['label' => 'Projects', 'value' => $projectCount],
                 ['label' => 'Invoices', 'value' => $invoiceCount],
                 ['label' => 'Unpaid', 'value' => $unpaidCount],
+                ['label' => 'Partial', 'value' => $partialCount],
                 ['label' => 'Paid', 'value' => $paidCount],
             ];
         @endphp

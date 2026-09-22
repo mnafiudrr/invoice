@@ -60,8 +60,10 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         ->name('invoices.download-pdf');
     Route::post('invoices/{invoice}/status', [InvoiceController::class, 'changeStatus'])
         ->name('invoices.status');
-    Route::post('invoices/{invoice}/paid', [InvoiceController::class, 'markPaid'])
-        ->name('invoices.mark-paid');
+    Route::post('invoices/{invoice}/payments', [InvoiceController::class, 'storePayment'])
+        ->name('invoices.payments.store');
+    Route::delete('invoices/{invoice}/payments/{payment}', [InvoiceController::class, 'deletePayment'])
+        ->name('invoices.payments.destroy');
     Route::post('invoices/{invoice}/files', [InvoiceController::class, 'storeFile'])
         ->name('invoices.files.store');
     Route::delete('invoices/{invoice}/files/{file}', [InvoiceController::class, 'deleteFile'])

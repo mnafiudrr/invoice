@@ -9,6 +9,7 @@ use App\Http\Requests\StoreInvoiceRequest;
 use App\Http\Requests\UpdateInvoiceRequest;
 use App\Models\File;
 use App\Models\Invoice;
+use App\Models\Payment;
 use App\Models\Project;
 use App\Models\ShareLink;
 use App\Services\FileService;
@@ -140,7 +141,7 @@ class InvoiceController extends Controller
     public function changeStatus(Request $request, Invoice $invoice): RedirectResponse
     {
         $request->validate([
-            'status' => ['required', Rule::in(Invoice::$statuses)],
+            'status' => ['required', Rule::in(Invoice::$manualStatuses)],
         ]);
 
         $this->invoiceService->changeStatus($invoice, $request->string('status'));
@@ -150,13 +151,22 @@ class InvoiceController extends Controller
             ->with('success', 'Invoice status updated.');
     }
 
-    public function markPaid(MarkPaidRequest $request, Invoice $invoice): RedirectResponse
+    public function storePayment(MarkPaidRequest $request, Invoice $invoice): RedirectResponse
     {
-        $this->paymentService->markAsPaid($invoice, $request->validated());
+        $this->paymentService->recordPayment($invoice, $request->validated());
 
         return redirect()
             ->route('admin.invoices.show', $invoice)
-            ->with('success', 'Invoice marked as paid.');
+            ->with('success', 'Payment recorded.');
+    }
+
+    public function deletePayment(Invoice $invoice, Payment $payment): RedirectResponse
+    {
+        $this->paymentService->deletePayment($invoice, $payment);
+
+        return redirect()
+            ->route('admin.invoices.show', $invoice)
+            ->with('success', 'Payment deleted.');
     }
 
     public function storeFile(StoreFileRequest $request, Invoice $invoice): RedirectResponse

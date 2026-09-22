@@ -119,25 +119,42 @@
             </x-card>
 
             <x-card title="Payments">
-                @if (! $invoice->isPaid())
-                    <x-slot:actions>
+                <x-slot:actions>
+                    @if ($invoice->remainingAmount() > 0 && ! $invoice->isCancelled())
                         <button type="button" @click="$refs.payForm.classList.toggle('hidden')"
                                 class="rounded-md bg-green-600 px-4 py-2 text-sm font-medium text-white hover:bg-green-700">
-                            Mark as Paid
+                            Add Payment
                         </button>
-                    </x-slot:actions>
-                @endif
+                    @endif
+                </x-slot:actions>
 
-                <form method="POST" action="{{ route('admin.invoices.mark-paid', $invoice) }}" x-ref="payForm" class="hidden space-y-4 rounded border border-green-200 bg-green-50 p-4">
+                <div class="mb-4 grid grid-cols-3 gap-4 rounded border border-gray-200 bg-gray-50 p-4">
+                    <div>
+                        <p class="text-xs font-medium uppercase tracking-wider text-gray-500">Total</p>
+                        <p class="mt-1 font-semibold text-gray-900">{{ format_money($invoice->total, $invoice->currency) }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium uppercase tracking-wider text-gray-500">Paid</p>
+                        <p class="mt-1 font-semibold text-green-700">{{ format_money($invoice->paidAmount(), $invoice->currency) }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium uppercase tracking-wider text-gray-500">Remaining</p>
+                        <p class="mt-1 font-semibold text-gray-900">{{ format_money($invoice->remainingAmount(), $invoice->currency) }}</p>
+                    </div>
+                </div>
+
+                <form method="POST" action="{{ route('admin.invoices.payments.store', $invoice) }}" x-ref="payForm" class="hidden space-y-4 rounded border border-green-200 bg-green-50 p-4">
                     @csrf
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                        <x-input name="amount" type="number" step="0.01" min="0" :label="'Amount'" :value="$invoice->total" />
+                        <x-input name="amount" type="number" step="0.01" min="0.01" :label="'Amount'" :required="true"
+                                 :value="$invoice->remainingAmount()"
+                                 hint="Remaining: {{ format_money($invoice->remainingAmount(), $invoice->currency) }}" />
                         <x-input name="paid_at" type="date" :label="'Paid date'" :required="true" :value="now()->format('Y-m-d')" />
                         <x-input name="method" :label="'Method'" :required="true" placeholder="Bank transfer" />
                         <x-input name="reference" :label="'Reference'" />
                     </div>
                     <x-textarea name="notes" :label="'Notes'" rows="2" />
-                    <x-button type="submit" class="bg-green-600 hover:bg-green-700 focus-visible:ring-green-500">Confirm Payment</x-button>
+                    <x-button type="submit" class="bg-green-600 hover:bg-green-700 focus-visible:ring-green-500">Record Payment</x-button>
                 </form>
 
                 @if ($invoice->payments->isEmpty())
@@ -145,12 +162,24 @@
                 @else
                     <div class="mt-4 space-y-3">
                         @foreach ($invoice->payments as $payment)
-                            <div class="flex items-center justify-between rounded border border-gray-200 p-4">
+                            <div class="flex items-center justify-between gap-4 rounded border border-gray-200 p-4">
                                 <div>
                                     <p class="font-medium">{{ format_money($payment->amount, $invoice->currency) }}</p>
                                     <p class="text-sm text-gray-500">{{ $payment->method }} &middot; {{ format_date($payment->paid_at) }}</p>
+                                    @if ($payment->reference)
+                                        <p class="text-sm text-gray-400">Ref: {{ $payment->reference }}</p>
+                                    @endif
                                 </div>
-                                <p class="text-sm text-gray-500">{{ $payment->reference }}</p>
+                                <x-modal
+                                    :action="route('admin.invoices.payments.destroy', [$invoice, $payment])"
+                                    method="DELETE"
+                                    title="Delete payment?"
+                                    message="The payment record will be removed and the invoice status recalculated."
+                                    confirm-label="Delete">
+                                    <x-slot:trigger>
+                                        <x-button variant="ghost" type="button" size="sm">Delete</x-button>
+                                    </x-slot:trigger>
+                                </x-modal>
                             </div>
                         @endforeach
                     </div>
@@ -228,13 +257,14 @@
                 </dl>
             </x-card>
 
-            @if (! $invoice->isPaid())
+            @if (! $invoice->isPaid() && ! $invoice->isCancelled())
                 <x-card title="Change Status">
                     <form method="POST" action="{{ route('admin.invoices.status', $invoice) }}" class="flex items-center gap-2">
                         @csrf
-                        <x-select name="status" :options="$invoice::$statuses" :value="$invoice->status" />
+                        <x-select name="status" :options="$invoice::$manualStatuses" :value="$invoice->status" />
                         <x-button type="submit">Update</x-button>
                     </form>
+                    <p class="mt-3 text-xs text-gray-500">Paid / partially paid are set automatically from recorded payments.</p>
                 </x-card>
             @endif
         </div>

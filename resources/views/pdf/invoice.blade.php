@@ -26,8 +26,11 @@
                         @if ($invoice->isPaid())
                             <span style="display:inline-block; background:#dcfce7; color:#15803d; font-size:12px; font-weight:500; padding:2px 10px; border-radius:9999px;">PAID</span>
                             @if ($invoice->payments->isNotEmpty())
-                                <span style="font-size:12px; color:#6b7280; margin-left:8px;">{{ __('invoice.paid') }} on {{ format_date($invoice->payments->first()->paid_at) }}</span>
+                                <span style="font-size:12px; color:#6b7280; margin-left:8px;">{{ __('invoice.paid') }} on {{ format_date($invoice->payments->last()->paid_at) }}</span>
                             @endif
+                        @elseif ($invoice->isPartiallyPaid())
+                            <span style="display:inline-block; background:#fef3c7; color:#b45309; font-size:12px; font-weight:500; padding:2px 10px; border-radius:9999px;">PARTIALLY PAID</span>
+                            <span style="font-size:12px; color:#6b7280; margin-left:8px;">Paid {{ format_money($invoice->paidAmount(), $invoice->currency) }} of {{ format_money($invoice->total, $invoice->currency) }}</span>
                         @else
                             <span style="display:inline-block; background:#fef3c7; color:#b45309; font-size:12px; font-weight:500; padding:2px 10px; border-radius:9999px;">UNPAID</span>
                         @endif

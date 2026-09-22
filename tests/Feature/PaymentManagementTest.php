@@ -35,18 +35,26 @@ class PaymentManagementTest extends TestCase
         return Invoice::factory()->for($this->project)->create($attributes);
     }
 
-    public function test_marking_invoice_as_paid_creates_payment_and_updates_status(): void
+    private function paymentPayload(array $overrides = []): array
+    {
+        return array_merge([
+            'amount' => 1000000,
+            'paid_at' => now()->format('Y-m-d'),
+            'method' => 'Bank transfer',
+            'reference' => 'TRX-001',
+            'notes' => null,
+        ], $overrides);
+    }
+
+    public function test_full_payment_marks_invoice_as_paid(): void
     {
         $this->actingAs($this->owner);
 
         $invoice = $this->createInvoice(['total' => 5000000, 'status' => Invoice::STATUS_SENT]);
 
-        $this->post(route('admin.invoices.mark-paid', $invoice), [
+        $this->post(route('admin.invoices.payments.store', $invoice), $this->paymentPayload([
             'amount' => 5000000,
-            'paid_at' => now()->format('Y-m-d'),
-            'method' => 'Bank transfer',
-            'reference' => 'TRX-001',
-        ])->assertRedirect(route('admin.invoices.show', $invoice));
+        ]))->assertRedirect(route('admin.invoices.show', $invoice));
 
         $invoice->refresh();
         $this->assertSame(Invoice::STATUS_PAID, $invoice->status);
@@ -57,33 +65,107 @@ class PaymentManagementTest extends TestCase
         ]);
     }
 
-    public function test_mark_paid_defaults_amount_to_invoice_total(): void
+    public function test_partial_payment_sets_partially_paid_status(): void
     {
         $this->actingAs($this->owner);
 
-        $invoice = $this->createInvoice(['total' => 1000000]);
+        $invoice = $this->createInvoice(['total' => 800000, 'status' => Invoice::STATUS_SENT]);
 
-        $this->post(route('admin.invoices.mark-paid', $invoice), [
-            'paid_at' => now()->format('Y-m-d'),
-            'method' => 'Cash',
-        ]);
+        $this->post(route('admin.invoices.payments.store', $invoice), $this->paymentPayload([
+            'amount' => 300000,
+            'paid_at' => '2026-05-21',
+        ]))->assertRedirect();
 
-        $payment = Payment::where('invoice_id', $invoice->id)->first();
-        $this->assertEquals(1000000, (float) $payment->amount);
+        $invoice->refresh();
+        $this->assertSame(Invoice::STATUS_PARTIALLY_PAID, $invoice->status);
+        $this->assertEquals(300000, $invoice->paidAmount());
+        $this->assertEquals(500000, $invoice->remainingAmount());
     }
 
-    public function test_cannot_mark_invoice_paid_twice(): void
+    public function test_multiple_partial_payments_accumulate(): void
     {
         $this->actingAs($this->owner);
 
-        $invoice = $this->createInvoice(['status' => Invoice::STATUS_PAID]);
+        $invoice = $this->createInvoice(['total' => 800000, 'status' => Invoice::STATUS_SENT]);
 
-        $this->post(route('admin.invoices.mark-paid', $invoice), [
-            'paid_at' => now()->format('Y-m-d'),
-            'method' => 'Bank transfer',
-        ])->assertStatus(422);
+        $this->post(route('admin.invoices.payments.store', $invoice), $this->paymentPayload(['amount' => 300000, 'paid_at' => '2026-05-21']));
+        $this->post(route('admin.invoices.payments.store', $invoice), $this->paymentPayload(['amount' => 300000, 'paid_at' => '2026-05-23']));
+        $this->post(route('admin.invoices.payments.store', $invoice), $this->paymentPayload(['amount' => 200000, 'paid_at' => '2026-06-02']));
 
-        $this->assertSame(0, Payment::where('invoice_id', $invoice->id)->count());
+        $invoice->refresh();
+        $this->assertSame(3, $invoice->payments()->count());
+        $this->assertEquals(800000, $invoice->paidAmount());
+        $this->assertSame(Invoice::STATUS_PAID, $invoice->status);
+        $this->assertEquals(0, $invoice->remainingAmount());
+    }
+
+    public function test_overpayment_is_blocked(): void
+    {
+        $this->actingAs($this->owner);
+
+        $invoice = $this->createInvoice(['total' => 800000, 'status' => Invoice::STATUS_SENT]);
+
+        $this->post(route('admin.invoices.payments.store', $invoice), $this->paymentPayload(['amount' => 900000]))
+            ->assertSessionHasErrors('amount');
+
+        $this->assertSame(0, $invoice->payments()->count());
+    }
+
+    public function test_zero_amount_payment_is_rejected(): void
+    {
+        $this->actingAs($this->owner);
+
+        $invoice = $this->createInvoice(['total' => 800000, 'status' => Invoice::STATUS_SENT]);
+
+        $this->post(route('admin.invoices.payments.store', $invoice), $this->paymentPayload(['amount' => 0]))
+            ->assertSessionHasErrors('amount');
+    }
+
+    public function test_deleting_payment_recomputes_status(): void
+    {
+        $this->actingAs($this->owner);
+
+        $invoice = $this->createInvoice(['total' => 800000, 'status' => Invoice::STATUS_SENT]);
+        $payment = $this->postPayment($invoice, 300000);
+
+        $invoice->refresh();
+        $this->assertSame(Invoice::STATUS_PARTIALLY_PAID, $invoice->status);
+
+        $this->delete(route('admin.invoices.payments.destroy', [$invoice, $payment]))
+            ->assertRedirect(route('admin.invoices.show', $invoice));
+
+        $invoice->refresh();
+        $this->assertSame(Invoice::STATUS_SENT, $invoice->status);
+        $this->assertEquals(0, $invoice->paidAmount());
+    }
+
+    public function test_deleting_payment_after_fully_paid_reverts_to_partial(): void
+    {
+        $this->actingAs($this->owner);
+
+        $invoice = $this->createInvoice(['total' => 800000, 'status' => Invoice::STATUS_SENT]);
+        $this->postPayment($invoice, 800000);
+
+        $invoice->refresh();
+        $this->assertSame(Invoice::STATUS_PAID, $invoice->status);
+
+        $payment = $invoice->payments()->first();
+        $this->delete(route('admin.invoices.payments.destroy', [$invoice, $payment]));
+
+        $invoice->refresh();
+        $this->assertSame(Invoice::STATUS_SENT, $invoice->status);
+    }
+
+    public function test_cannot_record_payment_on_cancelled_invoice(): void
+    {
+        $this->actingAs($this->owner);
+
+        $invoice = $this->createInvoice(['total' => 800000, 'status' => Invoice::STATUS_CANCELLED]);
+
+        $this->post(route('admin.invoices.payments.store', $invoice), $this->paymentPayload(['amount' => 300000]))
+            ->assertStatus(422);
+
+        $this->assertSame(0, $invoice->payments()->count());
     }
 
     public function test_owner_can_upload_payment_receipt_to_private_storage(): void
@@ -156,5 +238,12 @@ class PaymentManagementTest extends TestCase
 
         $this->assertDatabaseMissing('files', ['id' => $file->id]);
         Storage::disk('private')->assertMissing($file->path);
+    }
+
+    private function postPayment(Invoice $invoice, float $amount): Payment
+    {
+        $this->post(route('admin.invoices.payments.store', $invoice), $this->paymentPayload(['amount' => $amount]));
+
+        return Payment::where('invoice_id', $invoice->id)->latest()->firstOrFail();
     }
 }

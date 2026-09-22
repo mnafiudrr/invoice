@@ -15,6 +15,7 @@ class DashboardController extends Controller
             'projectCount' => Project::count(),
             'invoiceCount' => Invoice::count(),
             'paidCount' => Invoice::where('status', Invoice::STATUS_PAID)->count(),
+            'partialCount' => Invoice::where('status', Invoice::STATUS_PARTIALLY_PAID)->count(),
             'unpaidCount' => Invoice::whereIn('status', [Invoice::STATUS_DRAFT, Invoice::STATUS_SENT])->count(),
             'recentInvoices' => Invoice::with('project')
                 ->latest()

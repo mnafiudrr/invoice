@@ -18,7 +18,7 @@ class MarkPaidRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'amount' => ['nullable', 'numeric', 'min:0'],
+            'amount' => ['required', 'numeric', 'min:0.01'],
             'paid_at' => ['required', 'date'],
             'method' => ['required', 'string', 'max:255'],
             'reference' => ['nullable', 'string', 'max:255'],
