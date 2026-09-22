@@ -143,7 +143,7 @@ Relations: `belongsTo projects`, `belongsTo invoices`. MVP implements invoice-le
 
 | Domain | Values |
 | --- | --- |
-| Invoice | `draft`, `sent`, `paid`, `cancelled` |
+| Invoice | `draft`, `sent`, `partially_paid`, `paid`, `cancelled` (paid/partially_paid derived from payments) |
 | File type | `invoice`, `payment_receipt`, `payment_proof`, `other` |
 
 ---
