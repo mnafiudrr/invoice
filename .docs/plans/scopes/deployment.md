@@ -7,7 +7,19 @@
 - Set real secrets in `.env` (`APP_KEY`, `OWNER_*`, `DB_*`, `APP_URL=https://invoice.fiu.my.id`).
 - Run once: `docker compose exec app php artisan migrate --seed --force`.
 - The app runs as a non-root PHP-FPM user (`www-data`); nginx serves `public/` only.
-- Assets: build once on deploy (`npm ci && npm run build`) so `public/build` is committed/present; or mount a built `public/build`.
+
+### Self-provisioning container (entrypoint)
+
+The app container has an **entrypoint** (`docker/php/entrypoint.sh`) that runs at startup and:
+
+1. Creates Laravel writable dirs and `chown`s `storage/` + `bootstrap/cache` to `www-data` (fixes the HTTP 500 "Permission denied" on compiled views when the host owns the bind-mounted files).
+2. Runs `composer install` if `vendor/` is missing (bind mount shadows the image, so deps are not in the image).
+3. Runs `npm ci && npm run build` if `public/build/manifest.json` is missing (assets are gitignored).
+4. Generates `APP_KEY` if `APP_KEY=base64:` is not set.
+
+So a fresh server needs no manual `composer install`/`npm run build` — `docker compose up -d --build` is enough; only `migrate --seed` is one-time and manual.
+
+> Note: the entrypoint runs as root inside the container and `chown`s writable dirs to `www-data`; subsequent `docker compose exec app php artisan ...` commands run as root and work.
 
 ## Production hardening checklist
 
