@@ -34,6 +34,8 @@ docker compose exec app php artisan db:seed --force
 
 The app is then served at `http://localhost:${APP_PORT:-8080}` (see `.env`).
 
+The app container's **entrypoint** (`docker/php/entrypoint.sh`) self-provisions on startup: it fixes `storage/` + `bootstrap/cache` ownership for `www-data` (prevents the HTTP 500 "Permission denied" on compiled views), runs `composer install` when `vendor/` is missing, builds frontend assets when `public/build/manifest.json` is missing, and generates `APP_KEY` if unset. This makes `docker compose up -d --build` work on a fresh server without manual `composer install` / `npm run build`.
+
 ### Owner account
 
 The single owner is seeded from env vars:

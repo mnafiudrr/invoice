@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libicu-dev \
         libpng-dev \
         libjpeg-dev \
+        nodejs \
+        npm \
         unzip \
     && docker-php-ext-configure gd --with-jpeg \
     && docker-php-ext-install pdo pdo_pgsql pgsql zip intl gd \
@@ -13,13 +15,12 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
+COPY docker/php/entrypoint.sh /usr/local/bin/docker-entrypoint
+RUN chmod +x /usr/local/bin/docker-entrypoint
+
 WORKDIR /var/www
-
-COPY . .
-
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev \
-    && chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 9000
 
+ENTRYPOINT ["/usr/local/bin/docker-entrypoint"]
 CMD ["php-fpm"]
